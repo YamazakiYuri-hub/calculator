@@ -2,24 +2,40 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import java.awt.*;
+import java.util.List;
+import java.util.ArrayList;
 
-//画面UI関連
+/**
+ * 画面UIのクラスです
+ * @author 山﨑優璃
+ * @version 
+ * @since 2026/06/14
+ */
 public class CalculatorFrame {
 
     private JLabel displayLabel = new JLabel();
     private JPanel keyPadPanel = new JPanel();
+    private CalculatorContoroller contoroller = new CalculatorContoroller();
+    private List<JButton> buttonList = new ArrayList<>();
 
-    //表示更新
+    /**
+     * 表示更新APIのメソッドです
+     * @param text 画面に表示する数字
+     */
     public void setDisplay(String text){
+        displayLabel.setText(text);
     }
 
-    //ボタン生成・配置
+    /**
+     * ボタンなどの画面表示に関連するメソッドです
+     */
     public void bindController(){
         //ウインドウの生成
         JFrame frame = new JFrame();
         frame.setTitle("Calculator");
-        frame.setSize(300,400);
+        frame.setSize(400,500);
         frame.setLayout(new BorderLayout());
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //表示エリアレイアウト
         displayLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         displayLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, 50));
@@ -39,9 +55,28 @@ public class CalculatorFrame {
             button.setFont(buttonFont);
             button.setMargin(new Insets(0, 0, 0, 0));
             keyPadPanel.add(button);
+            buttonList.add(button);
+            button.addActionListener(e -> {
+                contoroller.onButtonPressed(button.getText());
+            });
         }
         //表示する
         frame.setVisible(true);
+    }
+
+    //連携クラスの受け取り
+    public void setCalculatorFrame(CalculatorContoroller contoroller){
+        this.contoroller = contoroller;
+    }
+
+    //getter
+    //表示エリア
+    public JLabel getDisplayLabel(){
+        return displayLabel;
+    }
+    //ボタンの文字（画面情報まとめて渡す用）
+    public List<JButton> getButttonList(){
+        return buttonList;
     }
 
 }
