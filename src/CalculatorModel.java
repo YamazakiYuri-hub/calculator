@@ -1,24 +1,26 @@
 import java.math.BigDecimal;
-//import java.math.MathContext;
 import java.math.MathContext;
+import java.math.RoundingMode;
 
 /**
  * 計算機能に関連するクラスです
  * @author 山﨑優璃
  * @version 
- * @since 2026/06/16
+ * @since 2026/07/29
  */
 public class CalculatorModel {
 
     private BigDecimal leftOperand = BigDecimal.ZERO;
+    private BigDecimal rightOperand; 
     private StringBuilder currentInput = new StringBuilder();
     private String DisplayText = "0";
     private Operator pendingOp = null;
     private InputState state = InputState.READY;
     private int maxDigits = 8;
+    private ErrorHandler errorHandler = new ErrorHandler();
 
     /**
-     * 桁制限に関するメソッドです
+     * 桁制限、数値入力に関するメソッドです
      * @param ch 入力数値
      * @return trueは入力許容、falseは入力拒否
      */
@@ -29,7 +31,6 @@ public class CalculatorModel {
                 DisplayText = currentInput.append(ch).toString();
                 state = InputState.INPUT_NUMBER;
             }else if(getDisplayText() != "0"){
-                System.out.println("確認用："+getDisplayText());
                 DisplayText = currentInput.append(ch).toString();
                 state = InputState.INPUT_NUMBER;
             }
@@ -39,8 +40,13 @@ public class CalculatorModel {
             if(getDisplayText().equals("0") && ch =='0'){
                 return false;
             }
-            //冒頭の0を置換
+            //0を置換
             if(getDisplayText().equals("0") && ch !='0'){
+                if(pendingOp != null){
+                    DisplayText = currentInput.append(ch).toString();
+                }else{
+                    DisplayText = currentInput.append(ch).toString();
+                }
                 return true;
             }
             //入力,小数点込みで8桁まで
@@ -49,11 +55,7 @@ public class CalculatorModel {
                 return true;
             }
         }else if(state == InputState.INPUT_OPERATOR){
-            //00入力無効
-            if(getDisplayText().equals("0")){
-                return false;
-            }
-            //次の数値入力開始,String変換
+            //次の数値入力開始
             DisplayText = currentInput.append(ch).toString();
             state = InputState.INPUT_NUMBER;
             return true;
@@ -104,7 +106,8 @@ public class CalculatorModel {
                     currentInput.setLength(0);
                 }else if(pendingOp != null && state == InputState.INPUT_NUMBER){
                     //2つ目以降の数字確定、「+」入力
-                    apply();
+                    rightOperand = new BigDecimal(getDisplayText());
+                    apply(pendingOp,leftOperand,rightOperand);
                     pendingOp = Operator.ADD;
                     currentInput.setLength(0);
                     state = InputState.INPUT_OPERATOR;
@@ -127,7 +130,7 @@ public class CalculatorModel {
                     currentInput.setLength(0);
                 }else if(pendingOp != null && state == InputState.INPUT_NUMBER){
                     //2つ目以降の数字確定、「-」入力
-                    apply();
+                    apply(pendingOp,leftOperand,rightOperand);
                     pendingOp = Operator.SUB;
                     currentInput.setLength(0);
                     state = InputState.INPUT_OPERATOR;
@@ -146,7 +149,7 @@ public class CalculatorModel {
                     currentInput.setLength(0);
                 }else if(pendingOp != null && state == InputState.INPUT_NUMBER){
                     //2つ目以降の数字確定、「×」入力
-                    apply();
+                    apply(pendingOp,leftOperand,rightOperand);
                     pendingOp = Operator.MUL;
                     currentInput.setLength(0);
                     state = InputState.INPUT_OPERATOR;
@@ -165,7 +168,7 @@ public class CalculatorModel {
                     currentInput.setLength(0);
                 }else if(pendingOp != null && state == InputState.INPUT_NUMBER){
                     //2つ目以降の数字確定、「÷」入力
-                    apply();
+                    apply(pendingOp,leftOperand,rightOperand);
                     pendingOp = Operator.DIV;
                     currentInput.setLength(0);
                     state = InputState.INPUT_OPERATOR;
@@ -179,22 +182,23 @@ public class CalculatorModel {
     /**
      * 計算機能のメソッドです
      */
-    public void apply(){
+    public void apply(Operator pendingOp,BigDecimal leftOperand,BigDecimal rightOperand){
         switch (pendingOp) {
             case ADD:
-                BigDecimal RightOperand = new BigDecimal(getDisplayText());
-                leftOperand = leftOperand.add(RightOperand,MathContext.DECIMAL64);
+                this.leftOperand = leftOperand.add(rightOperand,MathContext.DECIMAL64);
                 break;
             case SUB:
-                RightOperand = new BigDecimal(getDisplayText());
-                leftOperand = leftOperand.subtract(RightOperand,MathContext.DECIMAL64);
+                this.leftOperand = leftOperand.subtract(rightOperand,MathContext.DECIMAL64);
                 break;
             case MUL:
-                RightOperand = new BigDecimal(getDisplayText());
-                leftOperand = leftOperand.multiply(RightOperand,MathContext.DECIMAL64);
+                this.leftOperand = leftOperand.multiply(rightOperand,MathContext.DECIMAL64);
                 break;
             case DIV:
-                //割り算
+                try{
+                    this.leftOperand = leftOperand.divide(rightOperand,7,RoundingMode.HALF_UP);
+                }catch(Exception e){
+                    errorHandler.handle(e);
+                }
                 break;
             default:
                 break;
@@ -207,7 +211,8 @@ public class CalculatorModel {
     public void equalsOp(){
         if(pendingOp != null && state == InputState.INPUT_NUMBER){
             //計算処理
-            apply();
+            rightOperand = new BigDecimal(getDisplayText());
+            apply(pendingOp,leftOperand,rightOperand);
             DisplayText = leftOperand.toString();
             pendingOp = null;
             state = InputState.READY;
@@ -231,5 +236,9 @@ public class CalculatorModel {
     //getter
     public String getDisplayText(){
         return DisplayText;
+    }
+
+    public Operator getPendingOp(){
+        return pendingOp;
     }
 }   
