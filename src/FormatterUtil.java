@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
  * 計算結果の表示整形に関連するクラスです
  * @author 山﨑優璃
  * @version 0
- * @since 2026/08/13
+ * @since 2026/09/08
  */
 public class FormatterUtil {
     
@@ -16,9 +16,13 @@ public class FormatterUtil {
      * @return 指数
      */
     public String formatForDisplay(BigDecimal v, int maxDigits){
-        if(v.toPlainString().length() > maxDigits){
-            DecimalFormat index = new DecimalFormat("0.0000000E0");
-            return index.format(v).replace("E", "e");
+        BigDecimal trimmed = v.stripTrailingZeros();
+        if(trimmed.precision() > maxDigits || v.toPlainString().replaceAll("[^0-9]", "").length() > 8){
+            DecimalFormat index = new DecimalFormat("0." + "0".repeat(maxDigits -1) + "E0");
+            index.setMinimumFractionDigits(0);
+            index.setMaximumFractionDigits(maxDigits-1);
+            String formatted = index.format(trimmed).replace("E", "e");
+            return formatted;
         }
         return v.toPlainString();
     }

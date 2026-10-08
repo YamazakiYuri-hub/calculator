@@ -6,7 +6,7 @@ import java.math.RoundingMode;
  * 計算機能に関連するクラスです
  * @author 山﨑優璃
  * @version 
- * @since 2026/08/13
+ * @since 2026/09/08
  */
 public class CalculatorModel {
 
@@ -106,12 +106,21 @@ public class CalculatorModel {
         if(state == InputState.ERROR){
             return false;
         }
-        //初期状態の小数点入力
+        //小数点入力
         if(state == InputState.READY){
-            currentInput.append("0").toString();
-            currentInput.append(".").toString();
-            state = InputState.INPUT_NUMBER;
-            return true;
+            //初期入力
+            if(currentInput.length() == 0){
+                currentInput.append("0").toString();
+                currentInput.append(".").toString();
+                state = InputState.INPUT_NUMBER;
+                return true;
+            }
+            //計算結果が出た後に続けて数値入力
+            else if(currentInput.length() != 0){
+                currentInput.append(".").toString();
+                state = InputState.INPUT_NUMBER;
+                return true;
+            }
         }
         //小数点を1つだけ許容
         if(!currentInput.toString().contains(".") && state == InputState.INPUT_NUMBER){
@@ -291,7 +300,7 @@ public class CalculatorModel {
     public String getDisplayText(){
         //エラー
         if(state == InputState.ERROR){
-            return "Error";
+            return "エラー";
         }
         StringBuilder displayText = new StringBuilder();
         displayText.append(formatNumber.formatForDisplay(leftOperand,maxDigits));
