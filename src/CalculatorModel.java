@@ -6,7 +6,7 @@ import java.math.RoundingMode;
  * 計算機能に関連するクラスです
  * @author 山﨑優璃
  * @version 
- * @since 2026/09/08
+ * @since 2026/10/29
  */
 public class CalculatorModel {
 
@@ -143,6 +143,10 @@ public class CalculatorModel {
         switch (op) {
             case ADD:
                 if(currentInput.length() > 0 && pendingOp == null && (state == InputState.INPUT_NUMBER || state == InputState.READY)){
+                    //入力判定
+                    if(!currentInputCheck(currentInput.toString())){
+                        return ;
+                    }
                     //初めの数字確定、「+」入力
                     leftOperand = new BigDecimal(currentInput.toString());
                     currentInput.setLength(0);
@@ -162,11 +166,23 @@ public class CalculatorModel {
                 }
                 break;
             case SUB:
-                if(leftOperand.compareTo(BigDecimal.ZERO) == 0 && state == InputState.READY){
+                if(leftOperand.compareTo(BigDecimal.ZERO) == 0 && pendingOp == null && state == InputState.READY){
+                    if(!currentInputCheck(currentInput.toString())){
+                        currentInput.setLength(0);
+                        currentInput.append('-').toString();
+                        state = InputState.INPUT_NUMBER;
+                        return;
+                    }
                     //負の符号許容
                     currentInput.append('-').toString();
                     state = InputState.INPUT_NUMBER;
                 }else if(currentInput.length() > 0 && pendingOp == null && (state == InputState.INPUT_NUMBER || state == InputState.READY)){
+                    //0入力「-」上書き
+                    if(!currentInputCheck(currentInput.toString())){
+                        currentInput.setLength(0);
+                        currentInput.append('-').toString();
+                        return;
+                    }
                     //初めの数字確定、「-」入力
                     leftOperand = new BigDecimal(currentInput.toString());
                     currentInput.setLength(0);
@@ -187,6 +203,10 @@ public class CalculatorModel {
                 break;
             case MUL:
                 if(currentInput.length() > 0 && pendingOp == null && (state == InputState.INPUT_NUMBER || state == InputState.READY)){
+                    //入力判定
+                    if(!currentInputCheck(currentInput.toString())){
+                        return ;
+                    }
                     //初めの数字確定、「×」入力
                     leftOperand = new BigDecimal(currentInput.toString());
                     currentInput.setLength(0);
@@ -207,6 +227,10 @@ public class CalculatorModel {
                 break;
             case DIV:
                 if(currentInput.length() > 0 && pendingOp == null && (state == InputState.INPUT_NUMBER || state == InputState.READY)){
+                    //入力判定
+                    if(!currentInputCheck(currentInput.toString())){
+                        return ;
+                    }
                     //初めの数字確定、「÷」入力
                     leftOperand = new BigDecimal(currentInput.toString());
                     currentInput.setLength(0);
@@ -230,6 +254,20 @@ public class CalculatorModel {
                 }
                 break;
         }
+    }
+
+    /**
+     * 入力値判定のメソッドです
+     * @param input 入力値
+     */
+    private boolean currentInputCheck(String input){
+        if(input.equals("-")){
+            return false;
+        }
+        if(new BigDecimal(input).compareTo(BigDecimal.ZERO) == 0){
+            return false;
+        }
+        return true;
     }
 
     /**
