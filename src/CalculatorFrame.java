@@ -13,7 +13,7 @@ public class CalculatorFrame {
 
     private JLabel displayLabel = new JLabel();
     private JPanel keyPadPanel = new JPanel();
-    private CalculatorContoroller contoroller;
+    private CalculatorController contoroller;
 
     /**
      * 表示更新APIのメソッドです
@@ -75,7 +75,7 @@ public class CalculatorFrame {
     }
 
     //連携クラスの受け取り
-    public void setCalculatorFrame(CalculatorContoroller contoroller){
+    public void setCalculatorFrame(CalculatorController contoroller){
         this.contoroller = contoroller;
     }
 

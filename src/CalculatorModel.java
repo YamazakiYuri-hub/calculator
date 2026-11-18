@@ -116,7 +116,7 @@ public class CalculatorModel {
                 return true;
             }
             //計算結果が出た後に続けて数値入力
-            else if(currentInput.length() != 0){
+            else if(currentInput.length() != 0 && currentInput.toString().equals("0")){
                 currentInput.append(".").toString();
                 state = InputState.INPUT_NUMBER;
                 return true;
@@ -160,6 +160,10 @@ public class CalculatorModel {
                     //2つ目以降の数字確定、「+」入力
                     rightOperand = new BigDecimal(currentInput.toString());
                     apply(pendingOp,leftOperand,rightOperand);
+                    //エラーが起きたら中断
+                    if(state == InputState.ERROR){
+                        return;
+                    }
                     pendingOp = Operator.ADD;
                     currentInput.setLength(0);
                     state = InputState.INPUT_OPERATOR;
@@ -167,18 +171,18 @@ public class CalculatorModel {
                 break;
             case SUB:
                 if(leftOperand.compareTo(BigDecimal.ZERO) == 0 && pendingOp == null && state == InputState.READY){
-                    if(!currentInputCheck(currentInput.toString())){
+                    if(currentInput.length() != 0){
                         currentInput.setLength(0);
                         currentInput.append('-').toString();
                         state = InputState.INPUT_NUMBER;
-                        return;
+                        return ;
                     }
                     //負の符号許容
                     currentInput.append('-').toString();
                     state = InputState.INPUT_NUMBER;
                 }else if(currentInput.length() > 0 && pendingOp == null && (state == InputState.INPUT_NUMBER || state == InputState.READY)){
                     //0入力「-」上書き
-                    if(!currentInputCheck(currentInput.toString())){
+                    if(!currentInputCheck(currentInput.toString()) && !currentInput.toString().contains(".")){
                         currentInput.setLength(0);
                         currentInput.append('-').toString();
                         return;
@@ -196,6 +200,10 @@ public class CalculatorModel {
                     //2つ目以降の数字確定、「-」入力
                     rightOperand = new BigDecimal(currentInput.toString());
                     apply(pendingOp,leftOperand,rightOperand);
+                    //エラーが起きたら中断
+                    if(state == InputState.ERROR){
+                        return;
+                    }
                     pendingOp = Operator.SUB;
                     currentInput.setLength(0);
                     state = InputState.INPUT_OPERATOR;
@@ -220,6 +228,10 @@ public class CalculatorModel {
                     //2つ目以降の数字確定、「×」入力
                     rightOperand = new BigDecimal(currentInput.toString());
                     apply(pendingOp,leftOperand,rightOperand);
+                    //エラーが起きたら中断
+                    if(state == InputState.ERROR){
+                        return;
+                    }
                     pendingOp = Operator.MUL;
                     currentInput.setLength(0);
                     state = InputState.INPUT_OPERATOR;

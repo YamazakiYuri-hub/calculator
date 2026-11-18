@@ -5,13 +5,13 @@
  * @version 
  * @since 2026/08/13
  */
-public class CalculatorContoroller {
+public class CalculatorController {
 
     private CalculatorModel model = new CalculatorModel();
     private CalculatorFrame view;
 
     //コンストラクタ
-    public CalculatorContoroller(CalculatorFrame view){
+    public CalculatorController(CalculatorFrame view){
         this.view = view;
     }
 

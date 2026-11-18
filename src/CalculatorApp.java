@@ -8,7 +8,7 @@ public class CalculatorApp {
      */
     public static void main(String[] args)  {
         CalculatorFrame view = new CalculatorFrame();
-        CalculatorContoroller contoroller = new CalculatorContoroller(view);
+        CalculatorController contoroller = new CalculatorController(view);
         view.setCalculatorFrame(contoroller);
         view.bindController();
         
