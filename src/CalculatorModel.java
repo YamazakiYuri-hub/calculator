@@ -74,7 +74,7 @@ public class CalculatorModel {
             return true;
         }else if(state == InputState.INPUT_NUMBER){
             //00入力無効
-            if(currentInput.toString().equals("0") && ch =='0'){
+            if(currentInput.toString().equals("0") && ch =='0' || currentInput.toString().equals("-0")){
                 return false;
             }
             //0を数値に上書き
@@ -182,16 +182,20 @@ public class CalculatorModel {
                     state = InputState.INPUT_NUMBER;
                 }else if(currentInput.length() > 0 && pendingOp == null && (state == InputState.INPUT_NUMBER || state == InputState.READY)){
                     //0入力「-」上書き
-                    if(!currentInputCheck(currentInput.toString()) && !currentInput.toString().contains(".")){
+                    if(currentInput.toString().equals("0")){
                         currentInput.setLength(0);
                         currentInput.append('-').toString();
                         return;
                     }
                     //初めの数字確定、「-」入力
-                    leftOperand = new BigDecimal(currentInput.toString());
-                    currentInput.setLength(0);
-                    pendingOp = Operator.SUB;
-                    state = InputState.INPUT_OPERATOR;
+                    String minusZero = currentInput.toString();
+                    if(minusZero.matches("-(?:\\d+(?:\\.\\d*)?|\\.\\d+)") && new BigDecimal(minusZero).compareTo(BigDecimal.ZERO) == 0){
+                        return ;
+                    }
+                        leftOperand = new BigDecimal(currentInput.toString());
+                        currentInput.setLength(0);
+                        pendingOp = Operator.SUB;
+                        state = InputState.INPUT_OPERATOR;
                 }else if(pendingOp != null && state == InputState.INPUT_OPERATOR){
                     //上書き
                     pendingOp = Operator.SUB;
