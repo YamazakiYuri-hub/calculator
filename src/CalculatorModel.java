@@ -6,7 +6,7 @@ import java.math.RoundingMode;
  * 計算機能に関連するクラスです
  * @author 山﨑優璃
  * @version 
- * @since 2026/10/29
+ * @since 2026/11/18
  */
 public class CalculatorModel {
 
@@ -188,8 +188,7 @@ public class CalculatorModel {
                         return;
                     }
                     //初めの数字確定、「-」入力
-                    String minusZero = currentInput.toString();
-                    if(minusZero.matches("-(?:\\d+(?:\\.\\d*)?|\\.\\d+)") && new BigDecimal(minusZero).compareTo(BigDecimal.ZERO) == 0){
+                    if(!currentInputCheck(currentInput.toString())){
                         return ;
                     }
                         leftOperand = new BigDecimal(currentInput.toString());
